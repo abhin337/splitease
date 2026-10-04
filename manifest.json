@@ -1,0 +1,25 @@
+{
+  "name": "SplitEase - 2 Person Splitwise",
+  "short_name": "SplitEase",
+  "start_url": "./index.html",
+  "id": "splitease-app",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#059669",
+  "description": "Simple 2-person expense tracking with Google Sheet backend",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

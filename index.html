@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#059669">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>SplitEase - 2 Person Splitwise</title>
+  
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+  <link rel="manifest" href="manifest.json">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #059669;
+      --primary-dark: #047857;
+      --primary-light: #ecfdf5;
+      --accent: #10b981;
+      --danger: #ef4444;
+      --danger-light: #fef2f2;
+      --warning: #f59e0b;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 12px -2px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      padding-bottom: 90px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 4px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      object-fit: cover;
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+    }
+
+    .brand-text h1 {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.3px;
+    }
+
+    .brand-text p {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: white;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 18px;
+      transition: all 0.2s ease;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.92);
+      background: #f1f5f9;
+    }
+
+    /* Install Banner */
+    .install-banner {
+      background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
+      border: 1px solid #a7f3d0;
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.08);
+    }
+
+    .install-banner-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .btn-install-app {
+      padding: 7px 12px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-install-app:active {
+      background: var(--primary-dark);
+    }
+
+    .btn-dismiss-install {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 15px;
+      padding: 4px;
+      line-height: 1;
+    }
+
+    /* Setup Banner (if no sheet URL) */
+    .setup-banner {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .setup-banner h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e40af;
+    }
+
+    .setup-banner p {
+      font-size: 12px;
+      color: #3b82f6;
+      line-height: 1.4;
+    }
+
+    /* Summary Card */
+    .summary-card {
+      background: linear-gradient(145deg, #ffffff, #f9fafb);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .summary-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #10b981, #3b82f6);
+    }
+
+    .summary-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .balance-status {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 14px;
+      line-height: 1.3;
+    }
+
+    .balance-status.owing {
+      color: #ea580c;
+    }
+
+    .balance-status.settled {
+      color: #059669;
+    }
+
+    .summary-actions {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .btn-settle {
+      flex: 1;
+      padding: 10px 14px;
+      background: #0f172a;
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+
+    .btn-settle:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .summary-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .stat-box {
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .stat-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .amount-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .currency-badge {
+      position: absolute;
+      left: 14px;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .amount-input {
+      width: 100%;
+      padding: 12px 14px 12px 38px;
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-main);
+      background: #f8fafc;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .amount-input:focus {
+      border-color: var(--primary);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    }
+
+    .text-input, .select-input {
+      width: 100%;
+      padding: 11px 14px;
+      font-size: 14px;
+      color: var(--text-main);
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .text-input:focus, .select-input:focus {
+      border-color: var(--primary);
+      background: white;
+    }
+
+    /* Segmented Controls */
+    .pill-group {
+      display: flex;
+      gap: 6px;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: 12px;
+    }
+
+    .pill-btn {
+      flex: 1;
+      padding: 9px 4px;
+      font-size: 12.5px;
+      font-weight: 700;
+      background: transparent;
+      border: none;
+      border-radius: 9px;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pill-btn.active {
+      background: white;
+      color: var(--text-main);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+
+    /* Category Chips */
+    .chips-scroll {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .chips-scroll::-webkit-scrollbar { display: none; }
+
+    .chip {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #f1f5f9;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .chip.active {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      border-color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* Primary Submit Button */
+    .btn-primary {
+      width: 100%;
+      padding: 13px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 14.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+      background: var(--primary-dark);
+    }
+
+    /* Transaction List */
+    .tx-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .tx-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: #f8fafc;
+      border-radius: 12px;
+      border: 1px solid #f1f5f9;
+    }
+
+    .tx-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .tx-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: white;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .tx-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .tx-desc {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+
+    .tx-meta {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tx-right {
+      text-align: right;
+      flex-shrink: 0;
+      margin-left: 10px;
+    }
+
+    .tx-amount {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 2px;
+    }
+
+    .tx-sub {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .tx-delete-btn {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 4px;
+      margin-left: 6px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--text-muted);
+    }
+
+    .empty-state-icon {
+      font-size: 40px;
+      margin-bottom: 8px;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-sheet {
+      background: white;
+      width: 100%;
+      max-width: 480px;
+      border-radius: 24px 24px 0 0;
+      padding: 24px;
+      box-shadow: var(--shadow-lg);
+      animation: slideUp 0.25s ease-out;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .modal-title {
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .modal-close {
+      background: #f1f5f9;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: #0f172a;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: var(--shadow-lg);
+      z-index: 2000;
+      transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(2px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1500;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .loading-overlay .big-spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid #e2e8f0;
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    #customSplitContainer {
+      display: none;
+      margin-top: 10px;
+      background: #f8fafc;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+
+    .custom-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .custom-row:last-child { margin-bottom: 0; }
+  </style>
+</head>
+<body>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="big-spinner"></div>
+    <div class="loading-text" id="loadingText">Connecting to Google Sheet...</div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toastMessage">✨ Updated!</div>
+
+  <div class="app-container">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <img src="icon-192.png" class="brand-icon" alt="SplitEase">
+        <div class="brand-text">
+          <h1 id="appTitle">SplitEase</h1>
+          <p>2-Person Expense Ledger</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="refreshBtn" title="Refresh data">🔄</button>
+        <button class="icon-btn" id="settingsBtn" title="Settings">⚙️</button>
+      </div>
+    </header>
+
+    <!-- PWA Install Banner -->
+    <div class="install-banner" id="installBanner">
+      <div class="install-banner-left">
+        <span style="font-size: 22px;">📲</span>
+        <div>
+          <div style="font-weight: 700; font-size: 13px; color: #065f46;">Install SplitEase App</div>
+          <div style="font-size: 11px; color: #047857;">Edge-to-edge native icon on home screen</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <button type="button" class="btn-install-app" id="btnInstallApp">Install App</button>
+        <button type="button" class="btn-dismiss-install" id="btnDismissBanner">✕</button>
+      </div>
+    </div>
+
+    <!-- Setup Prompt if URL not set -->
+    <div class="setup-banner" id="setupBanner">
+      <h4>🔗 Connect your Google Sheet</h4>
+      <p>Paste your deployed Google Apps Script Web App URL below to start syncing.</p>
+      <input type="url" class="text-input" id="initialScriptUrl" placeholder="https://script.google.com/macros/s/.../exec" style="margin-top: 4px;">
+      <button class="btn-primary" id="btnSaveInitialUrl" style="margin-top: 6px; padding: 10px;">Connect Google Sheet</button>
+    </div>
+
+    <!-- Balance Summary Card -->
+    <div class="summary-card">
+      <div class="summary-title">Net Balance</div>
+      <div class="balance-status" id="balanceStatus">Loading balance...</div>
+      
+      <div class="summary-actions">
+        <button class="btn-settle" id="openSettleBtn" disabled>
+          ⚡ Settle Up Balance
+        </button>
+      </div>
+
+      <div class="summary-stats">
+        <div class="stat-box">
+          <div class="stat-label">Total Spent</div>
+          <div class="stat-value" id="statTotalSpent">₹0.00</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label" id="lblP1Paid">P1 Paid</div>
+          <div class="stat-value" id="statP1Paid">₹0.00</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label" id="lblP2Paid">P2 Paid</div>
+          <div class="stat-value" id="statP2Paid">₹0.00</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Add Expense Card -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">➕ Add New Expense</h2>
+      </div>
+
+      <form id="expenseForm">
+        <!-- Amount -->
+        <div class="form-group">
+          <label class="form-label">AMOUNT</label>
+          <div class="amount-input-wrap">
+            <span class="currency-badge" id="formCurrencyBadge">₹</span>
+            <input type="number" step="0.01" class="amount-input" id="expAmount" placeholder="0.00" required inputmode="decimal">
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label class="form-label">DESCRIPTION</label>
+          <input type="text" class="text-input" id="expDesc" placeholder="e.g. Dinner, Groceries, Cab" required>
+        </div>
+
+        <!-- Category Chips -->
+        <div class="form-group">
+          <label class="form-label">CATEGORY</label>
+          <div class="chips-scroll" id="categoryChips">
+            <div class="chip active" data-cat="🍔 Food">🍔 Food</div>
+            <div class="chip" data-cat="🛒 Groceries">🛒 Groceries</div>
+            <div class="chip" data-cat="🚕 Travel">🚕 Travel</div>
+            <div class="chip" data-cat="🏠 Rent / Bills">🏠 Rent / Bills</div>
+            <div class="chip" data-cat="🍿 Fun">🍿 Fun</div>
+            <div class="chip" data-cat="✨ Other">✨ Other</div>
+          </div>
+        </div>
+
+        <!-- Paid By -->
+        <div class="form-group">
+          <label class="form-label">PAID BY</label>
+          <div class="pill-group" id="paidByPillGroup">
+            <button type="button" class="pill-btn active" id="btnPaidP1" data-val="p1">Person 1</button>
+            <button type="button" class="pill-btn" id="btnPaidP2" data-val="p2">Person 2</button>
+          </div>
+        </div>
+
+        <!-- Split Method -->
+        <div class="form-group">
+          <label class="form-label">HOW TO SPLIT?</label>
+          <div class="pill-group" id="splitPillGroup">
+            <button type="button" class="pill-btn active" data-split="EQUAL">50 / 50</button>
+            <button type="button" class="pill-btn" id="btnSplitFullP1" data-split="FULL_P1">100% P1</button>
+            <button type="button" class="pill-btn" id="btnSplitFullP2" data-split="FULL_P2">100% P2</button>
+            <button type="button" class="pill-btn" data-split="CUSTOM">Custom</button>
+          </div>
+
+          <div id="customSplitContainer">
+            <div class="custom-row">
+              <span id="lblCustomP1" style="font-size: 13px; font-weight:600;">Person 1 Share:</span>
+              <input type="number" step="0.01" class="text-input" id="customP1Share" style="width: 120px;" placeholder="0.00">
+            </div>
+            <div class="custom-row">
+              <span id="lblCustomP2" style="font-size: 13px; font-weight:600;">Person 2 Share:</span>
+              <input type="number" step="0.01" class="text-input" id="customP2Share" style="width: 120px;" placeholder="0.00">
+            </div>
+          </div>
+        </div>
+
+        <!-- Date -->
+        <div class="form-group">
+          <label class="form-label">DATE</label>
+          <input type="date" class="text-input" id="expDate" required>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn-primary" id="btnSubmitExpense">
+          <span>Save Expense to Sheet</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Recent Activity Card -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">📋 Recent Expenses</h2>
+        <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;" id="txCount">0 items</span>
+      </div>
+
+      <div class="tx-list" id="txList">
+        <div class="empty-state">
+          <div class="empty-state-icon">🧾</div>
+          <div class="empty-state-text">No expenses logged yet</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Settle Up Modal -->
+  <div class="modal-overlay" id="settleModal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3 class="modal-title">⚡ Settle Balance</h3>
+        <button class="modal-close" id="closeSettleModal">✕</button>
+      </div>
+
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;" id="settlePromptText">
+        Record payment between members
+      </p>
+
+      <div class="form-group">
+        <label class="form-label">PAYMENT AMOUNT</label>
+        <div class="amount-input-wrap">
+          <span class="currency-badge" id="settleCurrencyBadge">₹</span>
+          <input type="number" step="0.01" class="amount-input" id="settleAmount" required inputmode="decimal">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">WHO IS PAYING?</label>
+        <select class="select-input" id="settlePayerSelect"></select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">WHO IS RECEIVING?</label>
+        <select class="select-input" id="settleReceiverSelect"></select>
+      </div>
+
+      <button class="btn-primary" id="btnConfirmSettle" style="margin-top: 10px;">
+        <span>Confirm Payment & Settle</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3 class="modal-title">⚙️ App Settings</h3>
+        <button class="modal-close" id="closeSettingsModal">✕</button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">GOOGLE APPS SCRIPT URL</label>
+        <input type="url" class="text-input" id="settingScriptUrl" placeholder="https://script.google.com/macros/s/.../exec">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">PERSON 1 NAME</label>
+        <input type="text" class="text-input" id="settingP1Name" placeholder="e.g. Person 1">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">PERSON 2 NAME</label>
+        <input type="text" class="text-input" id="settingP2Name" placeholder="e.g. Person 2">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">CURRENCY SYMBOL</label>
+        <select class="select-input" id="settingCurrency">
+          <option value="₹">₹ (INR - Indian Rupee)</option>
+          <option value="$">$ (USD / CAD / AUD)</option>
+          <option value="€">€ (EUR - Euro)</option>
+          <option value="£">£ (GBP - British Pound)</option>
+          <option value="AED">AED (UAE Dirham)</option>
+          <option value="¥">¥ (JPY / CNY)</option>
+          <option value="SGD">SGD (Singapore Dollar)</option>
+        </select>
+      </div>
+
+      <button class="btn-primary" id="btnSaveSettings" style="margin-top: 10px;">
+        <span>Save Settings</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(console.error);
+    }
+
+    let appState = {
+      settings: {
+        p1_name: 'Person 1',
+        p2_name: 'Person 2',
+        currency: '₹',
+        app_title: 'SplitEase'
+      },
+      summary: {
+        netP1: 0,
+        debtor: '',
+        creditor: '',
+        amountOwed: 0,
+        statusText: 'All settled up! 🎉',
+        totalSpent: 0,
+        p1PaidTotal: 0,
+        p2PaidTotal: 0
+      },
+      transactions: [],
+      selectedCategory: '🍔 Food',
+      selectedPaidBy: 'p1',
+      selectedSplit: 'EQUAL'
+    };
+
+    document.getElementById('expDate').value = new Date().toISOString().split('T')[0];
+
+    function getScriptUrl() {
+      return localStorage.getItem('splitease_script_url') || '';
+    }
+
+    function setScriptUrl(url) {
+      localStorage.setItem('splitease_script_url', url.trim());
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastMessage');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+
+    function showLoading(text = 'Syncing...') {
+      document.getElementById('loadingText').textContent = text;
+      document.getElementById('loadingOverlay').style.display = 'flex';
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingOverlay').style.display = 'none';
+    }
+
+    // API Connector
+    async function apiRequest(action, data = {}) {
+      const url = getScriptUrl();
+      if (!url) {
+        document.getElementById('setupBanner').style.display = 'flex';
+        throw new Error('Please connect your Google Sheet URL first.');
+      }
+
+      const payload = JSON.stringify({ action: action, ...data });
+      const res = await fetch(url, {
+        method: 'POST',
+        body: payload
+      });
+
+      const result = await res.json();
+      if (result.status === 'error') {
+        throw new Error(result.message || 'Unknown error');
+      }
+      return result.data;
+    }
+
+    async function refreshData() {
+      const url = getScriptUrl();
+      if (!url) {
+        document.getElementById('setupBanner').style.display = 'flex';
+        hideLoading();
+        return;
+      }
+
+      showLoading('Loading expenses from Google Sheet...');
+      try {
+        const data = await apiRequest('getAppData');
+        onDataLoaded(data);
+      } catch (err) {
+        hideLoading();
+        alert('Error: ' + err.message);
+      }
+    }
+
+    function onDataLoaded(data) {
+      hideLoading();
+      if (!data) return;
+      appState.settings = data.settings || appState.settings;
+      appState.summary = data.summary || appState.summary;
+      appState.transactions = data.transactions || [];
+      renderUI();
+    }
+
+    function renderUI() {
+      const s = appState.settings;
+      const sum = appState.summary;
+      const curr = s.currency || '₹';
+
+      document.getElementById('appTitle').textContent = s.app_title || 'SplitEase';
+      document.getElementById('formCurrencyBadge').textContent = curr;
+      document.getElementById('settleCurrencyBadge').textContent = curr;
+
+      document.getElementById('btnPaidP1').textContent = s.p1_name;
+      document.getElementById('btnPaidP2').textContent = s.p2_name;
+      document.getElementById('btnSplitFullP1').textContent = `100% ${s.p1_name}`;
+      document.getElementById('btnSplitFullP2').textContent = `100% ${s.p2_name}`;
+      document.getElementById('lblCustomP1').textContent = `${s.p1_name} Share:`;
+      document.getElementById('lblCustomP2').textContent = `${s.p2_name} Share:`;
+
+      document.getElementById('lblP1Paid').textContent = `${s.p1_name} Paid`;
+      document.getElementById('lblP2Paid').textContent = `${s.p2_name} Paid`;
+
+      const statusEl = document.getElementById('balanceStatus');
+      statusEl.textContent = sum.statusText;
+      statusEl.className = 'balance-status ' + (sum.amountOwed > 0 ? 'owing' : 'settled');
+
+      document.getElementById('statTotalSpent').textContent = `${curr}${sum.totalSpent.toFixed(2)}`;
+      document.getElementById('statP1Paid').textContent = `${curr}${sum.p1PaidTotal.toFixed(2)}`;
+      document.getElementById('statP2Paid').textContent = `${curr}${sum.p2PaidTotal.toFixed(2)}`;
+
+      const settleBtn = document.getElementById('openSettleBtn');
+      if (sum.amountOwed > 0.01) {
+        settleBtn.disabled = false;
+        settleBtn.innerHTML = `⚡ Settle ${curr}${sum.amountOwed.toFixed(2)}`;
+      } else {
+        settleBtn.disabled = true;
+        settleBtn.innerHTML = `✅ All Settled Up`;
+      }
+
+      renderTransactions();
+    }
+
+    function renderTransactions() {
+      const listEl = document.getElementById('txList');
+      const countEl = document.getElementById('txCount');
+      const txs = appState.transactions;
+      const curr = appState.settings.currency || '₹';
+
+      countEl.textContent = `${txs.length} ${txs.length === 1 ? 'entry' : 'entries'}`;
+
+      if (!txs || txs.length === 0) {
+        listEl.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">🧾</div>
+            <div class="empty-state-text">No expenses logged yet</div>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      txs.forEach(tx => {
+        let catIcon = '✨';
+        if (tx.category.includes('Food') || tx.category.includes('🍔')) catIcon = '🍔';
+        else if (tx.category.includes('Groceries') || tx.category.includes('🛒')) catIcon = '🛒';
+        else if (tx.category.includes('Travel') || tx.category.includes('🚕')) catIcon = '🚕';
+        else if (tx.category.includes('Rent') || tx.category.includes('🏠')) catIcon = '🏠';
+        else if (tx.category.includes('Fun') || tx.category.includes('🍿')) catIcon = '🍿';
+        else if (tx.category.includes('Settlement') || tx.category.includes('💸')) catIcon = '💸';
+
+        let splitLabel = '';
+        if (tx.splitType === 'EQUAL') splitLabel = 'Split 50/50';
+        else if (tx.splitType === 'FULL_P1') splitLabel = `Paid for ${appState.settings.p1_name}`;
+        else if (tx.splitType === 'FULL_P2') splitLabel = `Paid for ${appState.settings.p2_name}`;
+        else if (tx.splitType === 'SETTLEMENT') splitLabel = 'Settlement Payment';
+        else splitLabel = 'Custom split';
+
+        html += `
+          <div class="tx-item">
+            <div class="tx-left">
+              <div class="tx-icon">${catIcon}</div>
+              <div class="tx-details">
+                <div class="tx-desc">${escapeHtml(tx.description)}</div>
+                <div class="tx-meta">${tx.date} • Paid by <b>${escapeHtml(tx.paidBy)}</b></div>
+              </div>
+            </div>
+            <div class="tx-right">
+              <div class="tx-amount">${curr}${Number(tx.amount).toFixed(2)}</div>
+              <div class="tx-sub">${splitLabel}</div>
+            </div>
+            <button class="tx-delete-btn" onclick="confirmDelete('${tx.id}')" title="Delete">🗑️</button>
+          </div>
+        `;
+      });
+
+      listEl.innerHTML = html;
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      return String(text).replace(/[&<>"']/g, function(m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+      });
+    }
+
+    document.getElementById('categoryChips').addEventListener('click', (e) => {
+      const chip = e.target.closest('.chip');
+      if (!chip) return;
+      document.querySelectorAll('#categoryChips .chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      appState.selectedCategory = chip.dataset.cat;
+    });
+
+    document.getElementById('paidByPillGroup').addEventListener('click', (e) => {
+      const btn = e.target.closest('.pill-btn');
+      if (!btn) return;
+      document.querySelectorAll('#paidByPillGroup .pill-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      appState.selectedPaidBy = btn.dataset.val;
+    });
+
+    document.getElementById('splitPillGroup').addEventListener('click', (e) => {
+      const btn = e.target.closest('.pill-btn');
+      if (!btn) return;
+      document.querySelectorAll('#splitPillGroup .pill-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      appState.selectedSplit = btn.dataset.split;
+
+      const customBox = document.getElementById('customSplitContainer');
+      if (appState.selectedSplit === 'CUSTOM') {
+        customBox.style.display = 'block';
+      } else {
+        customBox.style.display = 'none';
+      }
+    });
+
+    document.getElementById('expenseForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const amount = parseFloat(document.getElementById('expAmount').value);
+      const desc = document.getElementById('expDesc').value.trim();
+      const date = document.getElementById('expDate').value;
+      const paidBy = appState.selectedPaidBy === 'p1' ? appState.settings.p1_name : appState.settings.p2_name;
+
+      if (!amount || amount <= 0) return alert('Please enter a valid amount.');
+
+      let p1Share = 0;
+      let p2Share = 0;
+      if (appState.selectedSplit === 'CUSTOM') {
+        p1Share = parseFloat(document.getElementById('customP1Share').value) || 0;
+        p2Share = parseFloat(document.getElementById('customP2Share').value) || 0;
+        if (Math.abs((p1Share + p2Share) - amount) > 0.1) {
+          return alert(`Custom shares (${p1Share} + ${p2Share}) do not match total amount (${amount})`);
+        }
+      }
+
+      const payload = {
+        amount: amount,
+        description: desc,
+        date: date,
+        category: appState.selectedCategory,
+        paidBy: paidBy,
+        splitType: appState.selectedSplit,
+        p1Share: p1Share,
+        p2Share: p2Share
+      };
+
+      showLoading('Recording expense to Sheet...');
+      try {
+        const freshData = await apiRequest('addExpense', { data: payload });
+        onDataLoaded(freshData);
+        document.getElementById('expAmount').value = '';
+        document.getElementById('expDesc').value = '';
+        document.getElementById('customP1Share').value = '';
+        document.getElementById('customP2Share').value = '';
+        showToast('Expense recorded! ✅');
+      } catch (err) {
+        hideLoading();
+        alert('Error: ' + err.message);
+      }
+    });
+
+    window.confirmDelete = async function(id) {
+      if (!confirm('Are you sure you want to delete this expense?')) return;
+      showLoading('Deleting expense...');
+      try {
+        const freshData = await apiRequest('deleteExpense', { id: id });
+        onDataLoaded(freshData);
+        showToast('Expense deleted 🗑️');
+      } catch (err) {
+        hideLoading();
+        alert('Error: ' + err.message);
+      }
+    };
+
+    document.getElementById('openSettleBtn').addEventListener('click', () => {
+      const sum = appState.summary;
+      const s = appState.settings;
+      if (!sum.debtor || !sum.creditor) return;
+
+      document.getElementById('settleAmount').value = sum.amountOwed.toFixed(2);
+      document.getElementById('settlePromptText').textContent = 
+        `${sum.debtor} is paying ${sum.creditor} to settle up.`;
+
+      const payerSel = document.getElementById('settlePayerSelect');
+      const receiverSel = document.getElementById('settleReceiverSelect');
+      
+      payerSel.innerHTML = `
+        <option value="${sum.debtor}">${sum.debtor} (Owes ${s.currency}${sum.amountOwed.toFixed(2)})</option>
+        <option value="${sum.creditor}">${sum.creditor}</option>
+      `;
+      receiverSel.innerHTML = `
+        <option value="${sum.creditor}">${sum.creditor}</option>
+        <option value="${sum.debtor}">${sum.debtor}</option>
+      `;
+
+      document.getElementById('settleModal').style.display = 'flex';
+    });
+
+    document.getElementById('closeSettleModal').addEventListener('click', () => {
+      document.getElementById('settleModal').style.display = 'none';
+    });
+
+    document.getElementById('btnConfirmSettle').addEventListener('click', async () => {
+      const amount = parseFloat(document.getElementById('settleAmount').value);
+      const payer = document.getElementById('settlePayerSelect').value;
+      const receiver = document.getElementById('settleReceiverSelect').value;
+
+      if (!amount || amount <= 0) return alert('Please enter a valid amount.');
+
+      showLoading('Settling balance...');
+      const payload = {
+        amount: amount,
+        paidBy: payer,
+        paidTo: receiver,
+        date: new Date().toISOString().split('T')[0]
+      };
+
+      try {
+        const freshData = await apiRequest('settleUp', { data: payload });
+        document.getElementById('settleModal').style.display = 'none';
+        onDataLoaded(freshData);
+        showToast('Settled up successfully! 🎉');
+      } catch (err) {
+        hideLoading();
+        alert('Error: ' + err.message);
+      }
+    });
+
+    // Settings
+    document.getElementById('settingsBtn').addEventListener('click', () => {
+      const s = appState.settings;
+      document.getElementById('settingScriptUrl').value = getScriptUrl();
+      document.getElementById('settingP1Name').value = s.p1_name;
+      document.getElementById('settingP2Name').value = s.p2_name;
+      document.getElementById('settingCurrency').value = s.currency || '₹';
+      document.getElementById('settingsModal').style.display = 'flex';
+    });
+
+    document.getElementById('closeSettingsModal').addEventListener('click', () => {
+      document.getElementById('settingsModal').style.display = 'none';
+    });
+
+    document.getElementById('btnSaveSettings').addEventListener('click', async () => {
+      const newUrl = document.getElementById('settingScriptUrl').value.trim();
+      const p1 = document.getElementById('settingP1Name').value.trim() || 'Person 1';
+      const p2 = document.getElementById('settingP2Name').value.trim() || 'Person 2';
+      const curr = document.getElementById('settingCurrency').value;
+
+      if (newUrl) setScriptUrl(newUrl);
+
+      showLoading('Saving settings...');
+      try {
+        const freshData = await apiRequest('updateSettings', {
+          settings: { p1_name: p1, p2_name: p2, currency: curr }
+        });
+        document.getElementById('settingsModal').style.display = 'none';
+        onDataLoaded(freshData);
+        showToast('Settings saved! ✅');
+      } catch (err) {
+        hideLoading();
+        alert('Error: ' + err.message);
+      }
+    });
+
+    document.getElementById('btnSaveInitialUrl').addEventListener('click', () => {
+      const url = document.getElementById('initialScriptUrl').value.trim();
+      if (!url) return alert('Please enter your Google Apps Script URL.');
+      setScriptUrl(url);
+      document.getElementById('setupBanner').style.display = 'none';
+      refreshData();
+    });
+
+    document.getElementById('refreshBtn').addEventListener('click', refreshData);
+
+    // Native PWA Installation
+    let deferredPrompt = null;
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+      document.getElementById('installBanner').style.display = 'none';
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const banner = document.getElementById('installBanner');
+      if (banner) banner.style.display = 'flex';
+    });
+
+    document.getElementById('btnInstallApp').addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          document.getElementById('installBanner').style.display = 'none';
+        }
+        deferredPrompt = null;
+      } else {
+        alert('Tap Chrome menu (⋮) at top right and choose "Install app" or "Add to Home screen".');
+      }
+    });
+
+    document.getElementById('btnDismissBanner').addEventListener('click', () => {
+      document.getElementById('installBanner').style.display = 'none';
+    });
+
+    // Start
+    refreshData();
+  </script>
+</body>
+</html>
