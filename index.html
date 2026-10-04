@@ -1006,25 +1006,72 @@
       document.getElementById('loadingOverlay').style.display = 'none';
     }
 
-    // API Connector
+    // Robust API Connector for Google Apps Script
     async function apiRequest(action, data = {}) {
-      const url = getScriptUrl();
+      let url = getScriptUrl();
       if (!url) {
         document.getElementById('setupBanner').style.display = 'flex';
-        throw new Error('Please connect your Google Sheet URL first.');
+        throw new Error('Please connect your Google Sheet Web App URL first.');
       }
 
-      const payload = JSON.stringify({ action: action, ...data });
-      const res = await fetch(url, {
-        method: 'POST',
-        body: payload
-      });
-
-      const result = await res.json();
-      if (result.status === 'error') {
-        throw new Error(result.message || 'Unknown error');
+      // Check if user accidentally pasted Google Sheet or Script editor URL
+      if (url.includes('/edit') || url.includes('docs.google.com/spreadsheets')) {
+        throw new Error('You pasted a Google Sheet / Editor link! You must use the Web App URL that ends in /exec');
       }
-      return result.data;
+      if (url.includes('/dev')) {
+        throw new Error('You pasted the /dev test URL. Please use the live deployment URL that ends in /exec');
+      }
+
+      // 1. If fetching data, use GET (works seamlessly without CORS preflight across all mobile browsers)
+      if (action === 'getData' || action === 'getAppData') {
+        const fetchUrl = url + (url.includes('?') ? '&' : '?') + 'action=getData&t=' + Date.now();
+        try {
+          const res = await fetch(fetchUrl, {
+            method: 'GET',
+            redirect: 'follow',
+            headers: { 'Accept': 'application/json' }
+          });
+          const json = await res.json();
+          return json.data !== undefined ? json.data : json;
+        } catch (err) {
+          throw new Error('Failed to fetch from Google Sheet. Make sure in Apps Script: Deploy > Manage deployments > "Who has access" is set to "Anyone".');
+        }
+      }
+
+      // 2. For mutations (add, settle, delete, update), try POST first
+      try {
+        const payload = JSON.stringify({ action: action, ...data });
+        const res = await fetch(url, {
+          method: 'POST',
+          body: payload,
+          redirect: 'follow'
+        });
+        const json = await res.json();
+        if (json.status === 'error') throw new Error(json.message);
+        return json.data !== undefined ? json.data : json;
+      } catch (postErr) {
+        // Fallback to GET with URL parameters if POST redirect fails
+        try {
+          let getParams = new URLSearchParams();
+          getParams.append('action', action);
+          if (data.data) getParams.append('data', JSON.stringify(data.data));
+          if (data.id) getParams.append('id', data.id);
+          if (data.settings) getParams.append('settings', JSON.stringify(data.settings));
+          getParams.append('t', Date.now());
+
+          const fallbackUrl = url + (url.includes('?') ? '&' : '?') + getParams.toString();
+          const fallbackRes = await fetch(fallbackUrl, {
+            method: 'GET',
+            redirect: 'follow',
+            headers: { 'Accept': 'application/json' }
+          });
+          const fallbackJson = await fallbackRes.json();
+          if (fallbackJson.status === 'error') throw new Error(fallbackJson.message);
+          return fallbackJson.data !== undefined ? fallbackJson.data : fallbackJson;
+        } catch (fallbackErr) {
+          throw new Error('Communication failed. Make sure "Who has access" is set to "Anyone" in Google Apps Script.');
+        }
+      }
     }
 
     async function refreshData() {
@@ -1037,11 +1084,11 @@
 
       showLoading('Loading expenses from Google Sheet...');
       try {
-        const data = await apiRequest('getAppData');
+        const data = await apiRequest('getData');
         onDataLoaded(data);
       } catch (err) {
         hideLoading();
-        alert('Error: ' + err.message);
+        alert(err.message);
       }
     }
 
